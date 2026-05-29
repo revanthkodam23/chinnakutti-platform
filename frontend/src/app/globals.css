@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+body {
+  background: #FFFBF5;
+  color: #1a1a2e;
+  overflow-x: hidden;
+}
+
+.dark body {
+  background: #1a1a2e;
+  color: #ffffff;
+}
+
+::selection {
+  background: #2f9f78;
+  color: #ffffff;
+}
+
+.ck-gradient-text {
+  background: linear-gradient(135deg, #FF6B6B, #F59E0B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ck-float {
+  animation: ck-float 4s ease-in-out infinite;
+}
+
+@keyframes ck-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
