@@ -7,12 +7,22 @@ export function StoryCard({ story }: { story: StorySummary }) {
     <article className="group overflow-hidden rounded-[24px] bg-white shadow-soft transition hover:-translate-y-1.5 hover:shadow-candy dark:bg-white/10">
       <Link href={`/stories/${story.slug}`} className="block">
         <div
-          className="flex h-40 items-center justify-center text-7xl transition duration-300 group-hover:scale-105"
+          className="flex h-40 items-center justify-center overflow-hidden text-7xl"
           style={{
             background: `linear-gradient(135deg, ${story.color}22, ${story.color}10)`
           }}
         >
-          <span aria-hidden>{story.emoji}</span>
+          {story.coverImage ? (
+            // Supabase Storage project hostnames vary by deployment.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={story.coverImage}
+              alt={story.title}
+              className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <span className="transition duration-300 group-hover:scale-105" aria-hidden>{story.emoji}</span>
+          )}
         </div>
       </Link>
       <div className="flex min-h-48 flex-col gap-3 p-5">

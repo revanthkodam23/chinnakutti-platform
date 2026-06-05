@@ -1,5 +1,7 @@
+"use client";
+
 import { Plus, Trash2 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useActionState, type ReactNode } from "react";
 import { createBlockAction, deleteBlockAction, updateBlockAction } from "@/app/admin/actions";
 import { Field, inputClass, selectClass, textareaClass } from "@/components/admin/field";
 import {
@@ -9,6 +11,7 @@ import {
   type AdminStoryBlock
 } from "@/types/admin";
 import type { Json } from "@/lib/supabase/database.types";
+import { initialActionState, type ActionState } from "@/types/action-state";
 
 type BlockWithLanguage = AdminStoryBlock & {
   language?: Pick<AdminLanguage, "id" | "code" | "name" | "native_name"> | null;
@@ -30,7 +33,7 @@ export function StoryBlockEditor({
         <BlockForm
           action={createBlockAction.bind(null, storyId)}
           languages={languages}
-          defaultSortOrder={blocks.length + 1}
+          defaultSortOrder={nextSortOrder(blocks)}
           submitLabel="Add Block"
           submitIcon={<Plus size={18} />}
         />
@@ -76,7 +79,7 @@ function BlockForm({
   submitLabel,
   submitIcon
 }: {
-  action: (formData: FormData) => void | Promise<void>;
+  action: (state: ActionState, formData: FormData) => Promise<ActionState>;
   block?: AdminStoryBlock;
   languages: AdminLanguage[];
   defaultSortOrder?: number;
@@ -84,9 +87,13 @@ function BlockForm({
   submitIcon?: ReactNode;
 }) {
   const metadata = metadataRecord(block?.metadata);
+  const [state, formAction, isPending] = useActionState(
+    action,
+    initialActionState
+  );
 
   return (
-    <form action={action} className="mt-5 grid gap-5 lg:grid-cols-2">
+    <form action={formAction} className="mt-5 grid gap-5 lg:grid-cols-2">
       <Field label="Language">
         <select className={selectClass} name="language_id" required defaultValue={block?.language_id ?? languages[0]?.id ?? ""}>
           {languages.map((language) => (
@@ -126,11 +133,30 @@ function BlockForm({
         </Field>
       </div>
       <div className="lg:col-span-2">
-        <button className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-coral to-amber px-6 py-3 font-black text-white shadow-candy">
+        <button
+          disabled={isPending}
+          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-br from-coral to-amber px-6 py-3 font-black text-white shadow-candy disabled:cursor-wait disabled:opacity-60"
+        >
           {submitIcon}
-          {submitLabel}
+          {isPending ? "Saving..." : submitLabel}
         </button>
       </div>
+      {state.status !== "idle" ? (
+        <div
+          className={`lg:col-span-2 rounded-2xl border-2 px-4 py-3 text-sm ${
+            state.status === "error"
+              ? "border-coral/30 bg-coral/10 text-[#7a2525]"
+              : "border-mint/30 bg-mint/10 text-[#176b4d]"
+          }`}
+          role="status"
+        >
+          <p className="font-black">{state.message}</p>
+          {state.code ? <p className="mt-2"><strong>PostgreSQL code:</strong> {state.code}</p> : null}
+          {state.details ? <p className="mt-1"><strong>Details:</strong> {state.details}</p> : null}
+          {state.hint ? <p className="mt-1"><strong>Hint:</strong> {state.hint}</p> : null}
+          {state.resolution ? <p className="mt-2 font-bold"><strong>Resolution:</strong> {state.resolution}</p> : null}
+        </div>
+      ) : null}
     </form>
   );
 }
@@ -145,4 +171,8 @@ function metadataRecord(value: Json | undefined) {
 
 function stringValue(value: Json | undefined) {
   return typeof value === "string" ? value : "";
+}
+
+function nextSortOrder(blocks: AdminStoryBlock[]) {
+  return Math.max(0, ...blocks.map((block) => block.sort_order)) + 10;
 }

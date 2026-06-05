@@ -25,3 +25,13 @@ or apply the SQL in `migrations/` through your Supabase project migration workfl
 ```bash
 supabase gen types typescript --project-id <project-id> > supabase/types/database.types.ts
 ```
+
+## Admin Users
+
+Create the user through Supabase Authentication first, then run:
+
+`scripts/promote_auth_user_to_admin.sql`
+
+Replace `admin@example.com` with the user's email before executing it in the
+Supabase SQL Editor. The user must sign out and sign back in, or refresh their
+session, before the new role appears in their JWT.

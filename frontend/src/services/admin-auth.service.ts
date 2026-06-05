@@ -14,8 +14,7 @@ export function isAdminUser(user: User | null) {
     return false;
   }
 
-  const role = user.app_metadata?.role ?? user.user_metadata?.role;
-  if (role === "admin") {
+  if (user.app_metadata?.role === "admin") {
     return true;
   }
 

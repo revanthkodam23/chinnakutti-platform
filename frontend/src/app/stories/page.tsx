@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { StoryGrid } from "@/components/story/story-grid";
-import { getStories } from "@/lib/api/content";
 import { createMetadata } from "@/lib/seo";
+import { getPublishedStorySummaries } from "@/services/public-story.service";
 
 export const metadata: Metadata = createMetadata({
   title: "Stories",
@@ -10,7 +10,7 @@ export const metadata: Metadata = createMetadata({
 });
 
 export default async function StoriesPage() {
-  const stories = await getStories();
+  const stories = await getPublishedStorySummaries();
 
   return (
     <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
